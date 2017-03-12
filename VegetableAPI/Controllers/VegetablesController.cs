@@ -46,7 +46,7 @@ namespace VegetableAPI.Controllers
         // más información vea http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "VegetableId,Description,Price")] Vegetable vegetable)
+        public ActionResult Create([Bind(Include = "VegetableId,Description,Price,LastPurchase,Image,IsActive,Observation")] Vegetable vegetable)
         {
             if (ModelState.IsValid)
             {
@@ -78,7 +78,7 @@ namespace VegetableAPI.Controllers
         // más información vea http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "VegetableId,Description,Price")] Vegetable vegetable)
+        public ActionResult Edit([Bind(Include = "VegetableId,Description,Price,LastPurchase,Image,IsActive,Observation")] Vegetable vegetable)
         {
             if (ModelState.IsValid)
             {
