@@ -6,10 +6,10 @@
 
 <h2>Index</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
+<p>    
+    <a class="btn btn-success" href="/Vegetables/Create">New <span class="glyphicon glyphicon-plus"></span></a>
 </p>
-<table class="table">
+<table class="table table-striped table-bordered table-hover">
     <tr>
         <th>
             @Html.DisplayNameFor(model => model.Description)
@@ -44,7 +44,10 @@
             @Html.DisplayFor(modelItem => item.LastPurchase)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Image)
+            @if (!string.IsNullOrEmpty(item.Image))
+            {
+                <img src="@Url.Content(item.Image)" alt="Image" style="width:100px;height:150px;max-width: 100%; height: auto;" />
+            }
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.IsActive)
@@ -53,9 +56,9 @@
             @Html.DisplayFor(modelItem => item.Observation)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.VegetableId }) |
-            @Html.ActionLink("Details", "Details", new { id=item.VegetableId }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.VegetableId })
+            <a class="btn btn-warning" href="/Vegetables/Edit/@item.VegetableId"> <span class="glyphicon glyphicon-edit"></span></a>
+            <a class="btn btn-info" href="/Vegetables/Details/@item.VegetableId"> <span class="glyphicon glyphicon-exclamation-sign"></span></a>
+            <a class="btn btn-danger" href="/Vegetables/Delete/@item.VegetableId"> <span class="glyphicon glyphicon-trash"></span></a>
         </td>
     </tr>
 }

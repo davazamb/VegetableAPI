@@ -6,18 +6,24 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using VegetableAPI.Content;
 using VegetableAPI.Models;
 
 namespace VegetableAPI.Controllers
 {
     public class VegetablesController : Controller
     {
-        private DataContext db = new DataContext();
+        private DataContext db; 
+
+        public VegetablesController()
+        {
+            db = new DataContext();
+        }
 
         // GET: Vegetables
         public ActionResult Index()
         {
-            return View(db.Vegetables.ToList());
+            return View(db.Vegetables.OrderBy(v => v.Description).ToList());
         }
 
         // GET: Vegetables/Details/5
@@ -27,11 +33,13 @@ namespace VegetableAPI.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Vegetable vegetable = db.Vegetables.Find(id);
+
+            var vegetable = db.Vegetables.Find(id);
             if (vegetable == null)
             {
                 return HttpNotFound();
             }
+
             return View(vegetable);
         }
 
@@ -41,21 +49,44 @@ namespace VegetableAPI.Controllers
             return View();
         }
 
-        // POST: Vegetables/Create
-        // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que desea enlazarse. Para obtener 
-        // más información vea http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Vegetables/Create  
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "VegetableId,Description,Price,LastPurchase,Image,IsActive,Observation")] Vegetable vegetable)
+        public ActionResult Create(VegetableView view)
         {
             if (ModelState.IsValid)
             {
+                var pic = string.Empty;
+                var folder = "~/Content/Images";
+
+                if (view.ImageFile != null)
+                {
+                    pic = Fileshelper.UploadPhoto(view.ImageFile, folder);
+                    pic = string.Format("{0}/{1}", folder, pic);
+                }
+
+                var vegetable = ToVegetable(view);
+                vegetable.Image = pic;
                 db.Vegetables.Add(vegetable);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            return View(vegetable);
+            return View(view);
+        }
+
+        private Vegetable ToVegetable(VegetableView view)
+        {
+            return new Vegetable
+            {
+                Description = view.Description,
+                VegetableId = view.VegetableId,
+                Image = view.Image,
+                IsActive = view.IsActive,
+                LastPurchase = view.LastPurchase,
+                Observation = view.Observation,
+                Price = view.Price,
+            };
         }
 
         // GET: Vegetables/Edit/5
@@ -65,28 +96,54 @@ namespace VegetableAPI.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Vegetable vegetable = db.Vegetables.Find(id);
+
+            var vegetable = db.Vegetables.Find(id);
             if (vegetable == null)
             {
                 return HttpNotFound();
             }
-            return View(vegetable);
+
+            return View(ToView(vegetable));
         }
 
-        // POST: Vegetables/Edit/5
-        // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que desea enlazarse. Para obtener 
-        // más información vea http://go.microsoft.com/fwlink/?LinkId=317598.
+        private VegetableView ToView(Vegetable vegetable)
+        {
+            return new VegetableView
+            {
+                Description = vegetable.Description,
+                VegetableId = vegetable.VegetableId,
+                Image = vegetable.Image,
+                IsActive = vegetable.IsActive,
+                LastPurchase = vegetable.LastPurchase,
+                Observation = vegetable.Observation,
+                Price = vegetable.Price,
+            };
+        }
+
+        // POST: Vegetables/Edit/5 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "VegetableId,Description,Price,LastPurchase,Image,IsActive,Observation")] Vegetable vegetable)
+        public ActionResult Edit(VegetableView view)
         {
             if (ModelState.IsValid)
             {
+                var pic = view.Image;
+                var folder = "~/Content/Images";
+
+                if (view.ImageFile != null)
+                {
+                    pic = Fileshelper.UploadPhoto(view.ImageFile, folder);
+                    pic = string.Format("{0}/{1}", folder, pic);
+                }
+
+                var vegetable = ToVegetable(view);
+                vegetable.Image = pic; 
+
                 db.Entry(vegetable).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View(vegetable);
+            return View(view);
         }
 
         // GET: Vegetables/Delete/5
