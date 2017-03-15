@@ -20,8 +20,8 @@ namespace VegetableAPI.Models
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
         [Required(ErrorMessage = "You must enter a {0}")]
         public decimal Price { get; set; }
-        [DataType(DataType.Date)]
         [Display(Name = "Last purchase")]
+        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = false)]
         public DateTime? LastPurchase { get; set; }
         public string Image { get; set; }
         [Display(Name ="Is active")]

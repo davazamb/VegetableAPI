@@ -26,9 +26,7 @@
         <th>
             @Html.DisplayNameFor(model => model.IsActive)
         </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Observation)
-        </th>
+
         <th></th>
     </tr>
 
@@ -52,9 +50,7 @@
         <td>
             @Html.DisplayFor(modelItem => item.IsActive)
         </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Observation)
-        </td>
+
         <td>
             <a class="btn btn-warning" href="/Vegetables/Edit/@item.VegetableId"> <span class="glyphicon glyphicon-edit"></span></a>
             <a class="btn btn-info" href="/Vegetables/Details/@item.VegetableId"> <span class="glyphicon glyphicon-exclamation-sign"></span></a>
