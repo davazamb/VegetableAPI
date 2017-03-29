@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using VegetableAPI.Classes;
 using VegetableAPI.Models;
 
 namespace VegetableAPI.Controllers.API
@@ -37,18 +39,34 @@ namespace VegetableAPI.Controllers.API
 
         // PUT: api/Vegetables/5
         [ResponseType(typeof(void))]
-        public IHttpActionResult PutVegetable(int id, Vegetable vegetable)
+        public IHttpActionResult PutVegetable(int id, VegetableRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != vegetable.VegetableId)
+            if (id != request.VegetableId)
             {
                 return BadRequest();
             }
 
+            if (request.ImageArray != null && request.ImageArray.Length > 0)
+            {
+                var stream = new MemoryStream(request.ImageArray);
+                var guid = Guid.NewGuid().ToString();
+                var file = string.Format("{0}.jpg", guid);
+                var folder = "~/Content/Images";
+                var fullPath = string.Format("{0}/{1}", folder, file);
+                var response = Fileshelper.UploadPhoto(stream, folder, file);
+
+                if (response)
+                {
+                    request.Image = fullPath;
+                }
+            }
+
+            var vegetable = ToVegetable(request);   
             db.Entry(vegetable).State = EntityState.Modified;
 
             try
@@ -72,17 +90,48 @@ namespace VegetableAPI.Controllers.API
 
         // POST: api/Vegetables
         [ResponseType(typeof(Vegetable))]
-        public IHttpActionResult PostVegetable(Vegetable vegetable)
+        public IHttpActionResult PostVegetable(VegetableRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            if (request.ImageArray != null && request.ImageArray.Length>0)
+            {
+                var stream = new MemoryStream(request.ImageArray);
+                var guid = Guid.NewGuid().ToString();
+                var file = string.Format("{0}.jpg", guid);
+                var folder = "~/Content/Images";
+                var fullPath = string.Format("{0}/{1}", folder, file);
+                var response = Fileshelper.UploadPhoto(stream, folder, file);
+
+                if (response)
+                {
+                    request.Image = fullPath;
+                }
+            }
+
+            var vegetable = ToVegetable(request);
             db.Vegetables.Add(vegetable);
             db.SaveChanges();
 
             return CreatedAtRoute("DefaultApi", new { id = vegetable.VegetableId }, vegetable);
+        }
+
+        private Vegetable ToVegetable(VegetableRequest request)
+        {
+            return new Vegetable
+            {
+                Description = request.Description,
+                VegetableId = request.VegetableId,
+                IsActive = request.IsActive,
+                Image = request.Image,
+                LastPurchase = request.LastPurchase,
+                Observation = request.Observation,
+                Price = request.Price,
+
+            };
         }
 
         // DELETE: api/Vegetables/5
